@@ -11,7 +11,7 @@ const db = require('./database/queries')
 const saltRounds = 12;  
 
 const corsOption = {
-    origin: '*',
+    origin: 'https://gimusic.netlify.app/',
     credentials:true,
     optionSuccessStatus: 200,
 };
@@ -33,6 +33,7 @@ app.post('/signup', async (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
+    console.log(req.body.username);
     let results = await db.getUser({username: req.body.username});
     console.log(results);
     if (results.user === undefined){
