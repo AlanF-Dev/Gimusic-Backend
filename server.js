@@ -51,7 +51,7 @@ app.post('/login', async (req, res) => {
                 "secretkey",
                 { expiresIn: "1h" }
             )
-            res.cookie('token', token, { maxAge: 360000, httpOnly: true })
+            res.cookie('token', token, { maxAge: 360000, httpOnly: true, sameSite: None })
             res.json({
                 success: true,
             })
