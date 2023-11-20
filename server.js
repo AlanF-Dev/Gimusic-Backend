@@ -33,7 +33,6 @@ app.post('/signup', async (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
-    console.log(req.body.username);
     let results = await db.getUser({username: req.body.username});
     console.log(results);
     if (results.user === undefined){
@@ -52,7 +51,7 @@ app.post('/login', async (req, res) => {
                 "secretkey",
                 { expiresIn: "1h" }
             )
-            res.cookie('token', token, { path: '/', expires: Date(Date.now()+3600), httpOnly: true })
+            res.cookie('token', token, { maxAge: 360000, httpOnly: true })
             res.json({
                 success: true,
             })
