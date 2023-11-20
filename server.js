@@ -20,6 +20,12 @@ app.use(cookieParser());
 app.use(express.json())
 app.use(cors(corsOption));
 
+app.get('/', (req, res) => {
+    res.json({
+        message: "GIMUSIC PROJECT"
+    })
+})
+
 app.post('/signup', async (req, res) => {
     let hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
 
