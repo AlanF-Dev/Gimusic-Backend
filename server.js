@@ -27,11 +27,42 @@ app.post('/signup', async (req, res) => {
         password: hashedPassword,
         usertype: 1
     });
-    res.json(result)
+    res.json(result);
 })
 
 app.post('/login', async (req, res) => {
-    
+    let results = await db.getUser({username: req.body.username});
+    console.log(results);
+    if (results.user === undefined){
+        console.log("4")
+        let message = "An account with that email has not been found in our records."
+        res.json({
+            success: false,
+            message: message
+        });
+    } else {
+        console.log("1")
+        if ( bcrypt.compareSync(req.body.password, results.user.hashedPassword)){
+            console.log("2")
+            let token = jwt.sign(
+                { username: results.user.username, email: results.user.email, usertype: results.user.user_type },
+                "secretkey",
+                { expiresIn: "1h" }
+            )
+            res.json({
+                success: true,
+                token: token
+            })
+        } 
+        else {
+            console.log("3")
+            let message = "Password does not match the email in our records. Try again."
+            res.json({
+                success: false,
+                message: message
+            });
+        }
+    }
 })
 
 app.listen(PORT, () => {

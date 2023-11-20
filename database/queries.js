@@ -19,6 +19,25 @@ const createUser = async(data) => {
     }
 }
 
+const getUser = async(data) => {
+    let getUserSQL = `
+        SELECT user_id, username, email, hashedPassword, user_type
+        FROM user
+        JOIN user_type ON user_type.user_type_id = user.user_type_id
+        WHERE username = (?);
+    `;
+
+    let param = [data.username];
+
+    try{
+        const results = await database.query(getUserSQL, param);
+        return {user: results[0][0], success: true};
+    }
+    catch(e){
+        return {success: false}
+    }
+}
+
 module.exports = {
-    createUser
+    createUser, getUser
 }
