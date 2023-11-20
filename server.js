@@ -11,7 +11,7 @@ const db = require('./database/queries')
 const saltRounds = 12;  
 
 const corsOption = {
-    origin: 'https://gimusic.netlify.app/',
+    origin: 'https://gimusic.netlify.app',
     credentials:true,
     optionSuccessStatus: 200,
 };
@@ -52,7 +52,7 @@ app.post('/login', async (req, res) => {
                 "secretkey",
                 { expiresIn: "1h" }
             )
-            res.cookie('token', token, { secure: false, maxAge: 3600, httpOnly: true })
+            res.cookie('token', token, { path: '/', expires: Date(Date.now()+3600), httpOnly: true })
             res.json({
                 success: true,
             })
