@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
 const db = require('./database/queries')    
@@ -15,6 +16,7 @@ const corsOption = {
     optionSuccessStatus: 200,
 };
 
+app.use(cookieParser());
 app.use(express.json())
 app.use(cors(corsOption));
 
@@ -49,9 +51,9 @@ app.post('/login', async (req, res) => {
                 "secretkey",
                 { expiresIn: "1h" }
             )
+            res.cookie('token', token, { secure: false, maxAge: 3600, httpOnly: true })
             res.json({
                 success: true,
-                token: token
             })
         } 
         else {
