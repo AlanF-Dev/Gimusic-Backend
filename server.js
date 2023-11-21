@@ -54,7 +54,7 @@ app.post('/login', async (req, res) => {
                 "secretkey",
                 { expiresIn: "1h" }
             )
-            res.cookie('token', token, { maxAge: 3600000, httpOnly: true, sameSite: 'none', secure: true  })
+            res.cookie('token', token, { maxAge: 3600000, httpOnly: true, sameSite: 'none', secure: true })
             res.json({
                 success: true,
             })
@@ -105,7 +105,7 @@ app.post('/authenticate', async (req, res) => {
 })
 
 app.post('/logout', async (req, res) => {
-    res.clearCookie('token');
+    res.clearCookie('token', { httpOnly: true, sameSite: 'none', secure: true });
     res.json({
         success: true
     })
