@@ -51,7 +51,7 @@ app.post('/login', async (req, res) => {
         if ( bcrypt.compareSync(req.body.password, results.user.hashedPassword)){
             let token = jwt.sign(
                 { username: results.user.username, email: results.user.email, usertype: results.user.user_type },
-                "secretkey",
+                process.env.JWT_SECRET,
                 { expiresIn: "1h" }
             )
             res.cookie('token', token, { maxAge: 3600000, httpOnly: true, sameSite: 'none', secure: true })
@@ -77,7 +77,7 @@ app.post('/authenticate', async (req, res) => {
             admin: false
         })
     } else {
-        let data = jwt.verify(token, "secretkey");
+        let data = jwt.verify(token, process.env.JWT_SECRET);
         if (data.username == undefined || data.email == undefined || data.usertype == undefined) {
             res.json({
                 success: false,
