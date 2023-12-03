@@ -11,8 +11,8 @@ const db = require('./database/queries')
 const saltRounds = 12;  
 
 const corsOption = {
-    origin: 'https://gimusic.netlify.app',
-    // origin: 'http://localhost:5173',
+    // origin: 'https://gimusic.netlify.app',
+    origin: 'http://localhost:5173',
     credentials:true,
     optionSuccessStatus: 200,
 };
@@ -42,7 +42,7 @@ app.post('/signup', async (req, res) => {
 app.post('/login', async (req, res) => {
     let results = await db.getUser({username: req.body.username});
     if (results.user === undefined){
-        let message = "An account with that email has not been found in our records."
+        let message = "An account with that username has not been found in our records."
         res.json({
             success: false,
             message: message
@@ -60,7 +60,7 @@ app.post('/login', async (req, res) => {
             })
         } 
         else {
-            let message = "Password does not match the email in our records. Try again."
+            let message = "Password does not match the username in our records. Try again."
             res.json({
                 success: false,
                 message: message
