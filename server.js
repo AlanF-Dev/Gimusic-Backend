@@ -111,6 +111,28 @@ app.post('/logout', async (req, res) => {
     })
 })
 
+app.get('/userRequests', async (req, res) => {
+    let token = req.cookies.token;
+    if (!token || token == undefined) {
+        res.json({
+            message: "No permission."
+        })
+    } else {
+        let data = jwt.verify(token, process.env.JWT_SECRET);
+        if (data.usertype === "admin") {
+            let results = await db.getUserRequests();
+            res.json({
+                success: results.success,
+                users: results.users
+            })
+        } else {
+            res.json({
+                message: "No permission"
+            })
+        }
+    }
+})
+
 app.listen(PORT, () => {
     console.log(`APP LISTENING ON PORT: ${PORT}`)
 })
