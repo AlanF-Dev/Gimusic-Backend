@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const qs = require("qs");
+const axios = require("axios");
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
@@ -8,11 +10,12 @@ const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 3000;
 const app = express();
 const db = require("./database/queries");
+const spotify = require("./spotify");
 const saltRounds = 12;
 
 const corsOption = {
-	// origin: "https://gimusic.netlify.app",
-	origin: 'http://localhost:5173',
+	// origin: 'https://gimusic.netlify.app',
+	origin: "http://localhost:5173",
 	credentials: true,
 	optionSuccessStatus: 200,
 };
@@ -43,7 +46,7 @@ app.post("/login", async (req, res) => {
 	let results = await db.getUser({ username: req.body.username });
 	if (results.user === undefined) {
 		let message =
-			"An account with that email has not been found in our records.";
+			"An account with that username has not been found in our records.";
 		res.json({
 			success: false,
 			message: message,
@@ -70,7 +73,7 @@ app.post("/login", async (req, res) => {
 			});
 		} else {
 			let message =
-				"Password does not match the email in our records. Try again.";
+				"Password does not match the username in our records. Try again.";
 			res.json({
 				success: false,
 				message: message,
@@ -123,6 +126,36 @@ app.post("/logout", async (req, res) => {
 	res.json({
 		success: true,
 	});
+});
+
+app.get("/getSpotifyAuth", async (req, res) => {
+	const token = await spotify.getTokenAuth();
+
+	res.json({
+		msg: token,
+	});
+});
+
+app.get("/userRequests", async (req, res) => {
+	let token = req.cookies.token;
+	if (!token || token == undefined) {
+		res.json({
+			message: "No permission.",
+		});
+	} else {
+		let data = jwt.verify(token, process.env.JWT_SECRET);
+		if (data.usertype === "admin") {
+			let results = await db.getUserRequests();
+			res.json({
+				success: results.success,
+				users: results.users,
+			});
+		} else {
+			res.json({
+				message: "No permission",
+			});
+		}
+	}
 });
 
 app.listen(PORT, () => {
