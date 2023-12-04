@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+const qs = require('qs')
+const axios = require('axios');
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
@@ -7,12 +9,13 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-const db = require('./database/queries')    
+const db = require('./database/queries')  
+const spotify = require('./spotify');  
 const saltRounds = 12;  
 
 const corsOption = {
-    origin: 'https://gimusic.netlify.app',
-    // origin: 'http://localhost:5173',
+    // origin: 'https://gimusic.netlify.app',
+    origin: 'http://localhost:5173',
     credentials:true,
     optionSuccessStatus: 200,
 };
@@ -108,6 +111,15 @@ app.post('/logout', async (req, res) => {
     res.clearCookie('token', { httpOnly: true, sameSite: 'none', secure: true });
     res.json({
         success: true
+    })
+})
+
+app.get('/getSpotifyAuth', async(req, res) => {
+    
+    const token = await spotify.getTokenAuth()
+
+    res.json({
+        msg: token
     })
 })
 
