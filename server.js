@@ -45,7 +45,7 @@ app.post('/signup', async (req, res) => {
 app.post('/login', async (req, res) => {
     let results = await db.getUser({username: req.body.username});
     if (results.user === undefined){
-        let message = "An account with that email has not been found in our records."
+        let message = "An account with that username has not been found in our records."
         res.json({
             success: false,
             message: message
@@ -54,7 +54,7 @@ app.post('/login', async (req, res) => {
         if ( bcrypt.compareSync(req.body.password, results.user.hashedPassword)){
             let token = jwt.sign(
                 { username: results.user.username, email: results.user.email, usertype: results.user.user_type },
-                "secretkey",
+                process.env.JWT_SECRET,
                 { expiresIn: "1h" }
             )
             res.cookie('token', token, { maxAge: 3600000, httpOnly: true, sameSite: 'none', secure: true })
@@ -63,7 +63,7 @@ app.post('/login', async (req, res) => {
             })
         } 
         else {
-            let message = "Password does not match the email in our records. Try again."
+            let message = "Password does not match the username in our records. Try again."
             res.json({
                 success: false,
                 message: message
@@ -80,7 +80,7 @@ app.post('/authenticate', async (req, res) => {
             admin: false
         })
     } else {
-        let data = jwt.verify(token, "secretkey");
+        let data = jwt.verify(token, process.env.JWT_SECRET);
         if (data.username == undefined || data.email == undefined || data.usertype == undefined) {
             res.json({
                 success: false,
@@ -121,6 +121,28 @@ app.get('/getSpotifyAuth', async(req, res) => {
     res.json({
         msg: token
     })
+})
+
+app.get('/userRequests', async (req, res) => {
+    let token = req.cookies.token;
+    if (!token || token == undefined) {
+        res.json({
+            message: "No permission."
+        })
+    } else {
+        let data = jwt.verify(token, process.env.JWT_SECRET);
+        if (data.usertype === "admin") {
+            let results = await db.getUserRequests();
+            res.json({
+                success: results.success,
+                users: results.users
+            })
+        } else {
+            res.json({
+                message: "No permission"
+            })
+        }
+    }
 })
 
 app.listen(PORT, () => {
