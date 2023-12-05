@@ -107,6 +107,43 @@ const getUserProfile = async(data) => {
     }
 }
 
+const updateApiCount = async(data) => {
+    let updateCount = `
+        UPDATE api
+        SET requests = requests + 1
+        WHERE api_id = (?);
+    `;
+
+    let param = [data.api_id];
+
+    try {
+        const results = await database.query(updateCount, param)
+        return {success: true}
+    }
+    catch(e) {
+        return {success: false}
+    }
+}
+
+const updateUserApiCount = async(data) => {
+    let updateCount = `
+        INSERT INTO api_requests (frn_user_id, requests)
+        VALUES (?, 1)
+        ON DUPLICATE KEY
+        UPDATE requests = requests + 1;
+    `;
+
+    let param = [data.user_id];
+
+    try {
+        const results = await database.query(updateCount, param)
+        return {success: true}
+    }
+    catch(e) {
+        return {success: false}
+    }
+}
+
 module.exports = {
-    createUser, getUser, updateUser, getApiRequests, getAllUserRequests, getUserProfile
+    createUser, getUser, updateUser, getApiRequests, getAllUserRequests, getUserProfile, updateApiCount, updateUserApiCount
 }

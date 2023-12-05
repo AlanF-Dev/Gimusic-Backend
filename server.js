@@ -33,6 +33,7 @@ app.get("/", (req, res) => {
 
 app.post(endpoint + "/signup", async (req, res) => {
 	let hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
+    await db.updateApiCount({api_id: 1})
 
 	const result = await db.createUser({
 		username: req.body.username,
@@ -44,6 +45,7 @@ app.post(endpoint + "/signup", async (req, res) => {
 });
 
 app.post(endpoint + '/login', async (req, res) => {
+    await db.updateApiCount({api_id: 2})
     let results = await db.getUser({username: req.body.username});
     if (results.user === undefined){
         let message = "An account with that username has not been found in our records."
@@ -109,6 +111,7 @@ app.post(endpoint + '/authenticate', async (req, res) => {
 })
 
 app.post(endpoint + "/logout", async (req, res) => {
+    await db.updateApiCount({api_id: 3})
 	res.clearCookie("token", { httpOnly: true, sameSite: "none", secure: true });
 	res.json({
 		success: true,
@@ -116,6 +119,8 @@ app.post(endpoint + "/logout", async (req, res) => {
 });
 
 app.get(endpoint + '/allUserRequests', async (req, res) => {
+    await db.updateApiCount({api_id: 4})
+
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
@@ -123,6 +128,7 @@ app.get(endpoint + '/allUserRequests', async (req, res) => {
         })
     } else {
         let data = jwt.verify(token, process.env.JWT_SECRET);
+        await db.updateUserApiCount({user_id: data.userid})
         if (data.usertype === "admin") {
             let results = await db.getAllUserRequests();
             res.json({
@@ -138,6 +144,7 @@ app.get(endpoint + '/allUserRequests', async (req, res) => {
 })
 
 app.get(endpoint + '/apiRequests', async (req, res) => {
+    await db.updateApiCount({api_id: 7})
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
@@ -145,6 +152,7 @@ app.get(endpoint + '/apiRequests', async (req, res) => {
         })
     } else {
         let data = jwt.verify(token, process.env.JWT_SECRET);
+        await db.updateUserApiCount({user_id: data.userid})
         if (data.usertype === "admin") {
             let results = await db.getApiRequests();
             res.json({
@@ -169,6 +177,7 @@ app.get(endpoint + "/getSpotifyAuth", async (req, res) => {
 });
 
 app.get(endpoint + '/userProfile', async (req, res) => {
+    await db.updateApiCount({api_id: 5})
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
@@ -181,6 +190,7 @@ app.get(endpoint + '/userProfile', async (req, res) => {
                 success: false
             })
         } else {
+            await db.updateUserApiCount({user_id: data.userid})
             let results = await db.getUserProfile({user_id: data.userid});
             res.json({
                 success: results.success,
@@ -191,6 +201,7 @@ app.get(endpoint + '/userProfile', async (req, res) => {
 })
 
 app.put(endpoint + '/updateUser', async (req, res) => {
+    await db.updateApiCount({api_id: 6})
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
@@ -203,6 +214,7 @@ app.put(endpoint + '/updateUser', async (req, res) => {
                 success: false
             })
         } else {
+            await db.updateUserApiCount({user_id: data.userid})
             let results = await db.updateUser({userid: data.userid, username: req.body.username, email: req.body.email});
             let newtoken = jwt.sign(
                 { userid: data.user_id, username: req.body.username, email: req.body.email, usertype: data.user_type },
