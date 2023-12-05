@@ -71,45 +71,6 @@ app.post('/login', async (req, res) => {
         }
     }
 })
-app.post("/login", async (req, res) => {
-	let results = await db.getUser({ username: req.body.username });
-	if (results.user === undefined) {
-		let message =
-			"An account with that username has not been found in our records.";
-		res.json({
-			success: false,
-			message: message,
-		});
-	} else {
-		if (bcrypt.compareSync(req.body.password, results.user.hashedPassword)) {
-			let token = jwt.sign(
-				{
-					username: results.user.username,
-					email: results.user.email,
-					usertype: results.user.user_type,
-				},
-				process.env.JWT_SECRET,
-				{ expiresIn: "1h" }
-			);
-			res.cookie("token", token, {
-				maxAge: 3600000,
-				httpOnly: true,
-				sameSite: "none",
-				secure: true,
-			});
-			res.json({
-				success: true,
-			});
-		} else {
-			let message =
-				"Password does not match the username in our records. Try again.";
-			res.json({
-				success: false,
-				message: message,
-			});
-		}
-	}
-});
 
 app.post('/authenticate', async (req, res) => {
     let token = req.cookies.token;
@@ -145,44 +106,6 @@ app.post('/authenticate', async (req, res) => {
         }
     }
 })
-app.post("/authenticate", async (req, res) => {
-	let token = req.cookies.token;
-	if (!token || token == undefined) {
-		res.json({
-			success: false,
-			admin: false,
-		});
-	} else {
-		let data = jwt.verify(token, process.env.JWT_SECRET);
-		if (
-			data.username == undefined ||
-			data.email == undefined ||
-			data.usertype == undefined
-		) {
-			res.json({
-				success: false,
-				admin: false,
-			});
-		} else {
-			if (data.usertype === "user") {
-				res.json({
-					success: true,
-					admin: false,
-				});
-			} else if (data.usertype === "admin") {
-				res.json({
-					success: true,
-					admin: true,
-				});
-			} else {
-				res.json({
-					sucess: false,
-					admin: false,
-				});
-			}
-		}
-	}
-});
 
 app.post("/logout", async (req, res) => {
 	res.clearCookie("token", { httpOnly: true, sameSite: "none", secure: true });
