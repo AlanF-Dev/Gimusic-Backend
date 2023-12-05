@@ -12,6 +12,7 @@ const app = express();
 const db = require("./database/queries");
 const spotify = require("./spotify");
 const saltRounds = 12;
+const endpoint = "/API/V1"
 
 const corsOption = {
 	// origin: 'https://gimusic.netlify.app',
@@ -30,7 +31,7 @@ app.get("/", (req, res) => {
 	});
 });
 
-app.post("/signup", async (req, res) => {
+app.post(endpoint + "/signup", async (req, res) => {
 	let hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
 
 	const result = await db.createUser({
@@ -42,7 +43,7 @@ app.post("/signup", async (req, res) => {
 	res.json(result);
 });
 
-app.post('/login', async (req, res) => {
+app.post(endpoint + '/login', async (req, res) => {
     let results = await db.getUser({username: req.body.username});
     if (results.user === undefined){
         let message = "An account with that username has not been found in our records."
@@ -72,7 +73,7 @@ app.post('/login', async (req, res) => {
     }
 })
 
-app.post('/authenticate', async (req, res) => {
+app.post(endpoint + '/authenticate', async (req, res) => {
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
@@ -107,14 +108,14 @@ app.post('/authenticate', async (req, res) => {
     }
 })
 
-app.post("/logout", async (req, res) => {
+app.post(endpoint + "/logout", async (req, res) => {
 	res.clearCookie("token", { httpOnly: true, sameSite: "none", secure: true });
 	res.json({
 		success: true,
 	});
 });
 
-app.get('/allUserRequests', async (req, res) => {
+app.get(endpoint + '/allUserRequests', async (req, res) => {
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
@@ -135,7 +136,7 @@ app.get('/allUserRequests', async (req, res) => {
         }
     }
 })
-app.get("/getSpotifyAuth", async (req, res) => {
+app.get(endpoint + "/getSpotifyAuth", async (req, res) => {
 	const token = await spotify.getTokenAuth();
 
 	res.json({
@@ -143,7 +144,7 @@ app.get("/getSpotifyAuth", async (req, res) => {
 	});
 });
 
-app.get('/userProfile', async (req, res) => {
+app.get(endpoint + '/userProfile', async (req, res) => {
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
@@ -165,7 +166,7 @@ app.get('/userProfile', async (req, res) => {
     }
 })
 
-app.put('/updateUser', async (req, res) => {
+app.put(endpoint + '/updateUser', async (req, res) => {
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
