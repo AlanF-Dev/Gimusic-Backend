@@ -50,7 +50,7 @@ app.post('/login', async (req, res) => {
     } else {
         if ( bcrypt.compareSync(req.body.password, results.user.hashedPassword)){
             let token = jwt.sign(
-                { username: results.user.username, email: results.user.email, usertype: results.user.user_type },
+                { userid: results.user.user_id, username: results.user.username, email: results.user.email, usertype: results.user.user_type },
                 process.env.JWT_SECRET,
                 { expiresIn: "1h" }
             )
@@ -78,7 +78,7 @@ app.post('/authenticate', async (req, res) => {
         })
     } else {
         let data = jwt.verify(token, process.env.JWT_SECRET);
-        if (data.username == undefined || data.email == undefined || data.usertype == undefined) {
+        if (data.userid == undefined || data.username == undefined || data.email == undefined || data.usertype == undefined) {
             res.json({
                 success: false,
                 admin: false
@@ -111,7 +111,7 @@ app.post('/logout', async (req, res) => {
     })
 })
 
-app.get('/userRequests', async (req, res) => {
+app.get('/allUserRequests', async (req, res) => {
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
@@ -120,7 +120,7 @@ app.get('/userRequests', async (req, res) => {
     } else {
         let data = jwt.verify(token, process.env.JWT_SECRET);
         if (data.usertype === "admin") {
-            let results = await db.getUserRequests();
+            let results = await db.getAllUserRequests();
             res.json({
                 success: results.success,
                 users: results.users
@@ -128,6 +128,55 @@ app.get('/userRequests', async (req, res) => {
         } else {
             res.json({
                 message: "No permission"
+            })
+        }
+    }
+})
+
+app.get('/userProfile', async (req, res) => {
+    let token = req.cookies.token;
+    if (!token || token == undefined) {
+        res.json({
+            success: false
+        })
+    } else {
+        let data = jwt.verify(token, process.env.JWT_SECRET);
+        if (data.userid == undefined || data.username == undefined || data.email == undefined || data.usertype == undefined) {
+            res.json({
+                success: false
+            })
+        } else {
+            let results = await db.getUserProfile({user_id: data.userid});
+            res.json({
+                success: results.success,
+                user: results.user
+            })
+        }
+    }
+})
+
+app.post('/updateUser', async (req, res) => {
+    let token = req.cookies.token;
+    if (!token || token == undefined) {
+        res.json({
+            success: false
+        })
+    } else {
+        let data = jwt.verify(token, process.env.JWT_SECRET);
+        if (data.userid == undefined || data.username == undefined || data.email == undefined || data.usertype == undefined) {
+            res.json({
+                success: false
+            })
+        } else {
+            let results = await db.updateUser({userid: data.userid, username: req.body.username, email: req.body.email});
+            let newtoken = jwt.sign(
+                { userid: data.user_id, username: req.body.username, email: req.body.email, usertype: data.user_type },
+                process.env.JWT_SECRET,
+                { expiresIn: "1h" }
+            )
+            res.cookie('token', newtoken, { maxAge: 3600000, httpOnly: true, sameSite: 'none', secure: true })
+            res.json({
+                success: results.success
             })
         }
     }

@@ -38,7 +38,25 @@ const getUser = async(data) => {
     }
 }
 
-const getUserRequests = async(data) => {
+const updateUser = async(data) => {
+    let updateUserSQL = `
+        UPDATE user
+        SET username = (?), email = (?)
+        WHERE user_id = (?);
+    `
+
+    let param = [data.username, data.email, data.userid];
+
+    try{
+        await database.query(updateUserSQL, param);
+        return {success: true}
+    }
+    catch(e){
+        return {success: false}
+    }
+}
+
+const getAllUserRequests = async(data) => {
     let getUserSQL = `
         SELECT user_id, username, email, IFNULL((get_requests + post_requests),0) AS requests
         FROM user
@@ -54,6 +72,25 @@ const getUserRequests = async(data) => {
     }
 }
 
+const getUserProfile = async(data) => {
+    let getUserSQL = `
+        SELECT user_id, username, email, IFNULL(get_requests, 0) AS get_requests, IFNULL(post_requests, 0) AS post_requests
+        FROM user
+        LEFT JOIN api_requests ON api_requests.frn_user_id = user.user_id
+        WHERE user.user_id = (?);
+    `;
+
+    let param = [data.user_id];
+
+    try{
+        const results = await database.query(getUserSQL, param);
+        return {user: results[0][0], success: true};
+    }
+    catch(e){
+        return {success: false}
+    }
+}
+
 module.exports = {
-    createUser, getUser, getUserRequests
+    createUser, getUser, updateUser, getAllUserRequests, getUserProfile
 }
