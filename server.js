@@ -15,8 +15,8 @@ const saltRounds = 12;
 const endpoint = "/API/V1"
 
 const corsOption = {
-	// origin: 'https://gimusic.netlify.app',
-	origin: "http://localhost:5173",
+	origin: 'https://gimusic.netlify.app',
+	// origin: "http://localhost:5173",
 	credentials: true,
 	optionSuccessStatus: 200,
 };
