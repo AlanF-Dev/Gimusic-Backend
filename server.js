@@ -155,7 +155,7 @@ app.get('/userProfile', async (req, res) => {
     }
 })
 
-app.post('/updateUser', async (req, res) => {
+app.put('/updateUser', async (req, res) => {
     let token = req.cookies.token;
     if (!token || token == undefined) {
         res.json({
