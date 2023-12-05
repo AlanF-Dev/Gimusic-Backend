@@ -58,7 +58,7 @@ const updateUser = async(data) => {
 
 const getAllUserRequests = async(data) => {
     let getUserSQL = `
-        SELECT user_id, username, email, IFNULL((get_requests + post_requests),0) AS requests
+        SELECT user_id, username, email, IFNULL(requests,0) AS requests
         FROM user
         LEFT JOIN api_requests ON api_requests.frn_user_id = user.user_id;
     `;
@@ -74,7 +74,7 @@ const getAllUserRequests = async(data) => {
 
 const getUserProfile = async(data) => {
     let getUserSQL = `
-        SELECT user_id, username, email, IFNULL(get_requests, 0) AS get_requests, IFNULL(post_requests, 0) AS post_requests
+        SELECT user_id, username, email, IFNULL(requests, 0) AS requests
         FROM user
         LEFT JOIN api_requests ON api_requests.frn_user_id = user.user_id
         WHERE user.user_id = (?);
