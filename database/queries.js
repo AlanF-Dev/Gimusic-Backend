@@ -56,6 +56,22 @@ const updateUser = async(data) => {
     }
 }
 
+const getApiRequests = async (data) => {
+    let getApiSQL = `
+        SELECT *
+        FROM api;
+    `;
+
+    try{
+        const results = await database.query(getApiSQL);
+        return {api: results[0], success: true};
+    }
+    catch(e){
+        return {success: false}
+    }
+}
+
+
 const getAllUserRequests = async(data) => {
     let getUserSQL = `
         SELECT user_id, username, email, IFNULL(requests,0) AS requests
@@ -92,5 +108,5 @@ const getUserProfile = async(data) => {
 }
 
 module.exports = {
-    createUser, getUser, updateUser, getAllUserRequests, getUserProfile
+    createUser, getUser, updateUser, getApiRequests, getAllUserRequests, getUserProfile
 }

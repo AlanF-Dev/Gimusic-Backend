@@ -136,6 +136,30 @@ app.get(endpoint + '/allUserRequests', async (req, res) => {
         }
     }
 })
+
+app.get(endpoint + '/apiRequests', async (req, res) => {
+    let token = req.cookies.token;
+    if (!token || token == undefined) {
+        res.json({
+            message: "No permission."
+        })
+    } else {
+        let data = jwt.verify(token, process.env.JWT_SECRET);
+        if (data.usertype === "admin") {
+            let results = await db.getApiRequests();
+            res.json({
+                success: results.success,
+                api: results.api
+            })
+        } else {
+            res.json({
+                message: "No permission"
+            })
+        }
+    }
+})
+
+
 app.get(endpoint + "/getSpotifyAuth", async (req, res) => {
 	const token = await spotify.getTokenAuth();
 
